@@ -18,8 +18,28 @@ async def log_incoming_traffic(request: Request, call_next):
 
 @app.get("/track/{user_id}/pixel.png")
 async def track_open(user_id: str, response: Response):
+    # Calculate the exact size of your binary image
+    content_length = str(len(TRANSPARENT_1X1_PNG))
+
+    # Force strict image headers so Google doesn't think it's corrupted text
+    response.headers["Content-Length"] = content_length
+    response.headers["Content-Type"] = "image/png"
+
     # Forcing Google Proxy to fetch fresh on every single load loop
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return Response(content=TRANSPARENT_1X1_PNG, media_type="image/png")
+
+# @app.get("/track/{user_id}/banner.png")
+# async def track_and_redirect(user_id: str):
+#     # This logs the live user hit
+#     print(f"\n[REAL OPEN EVENT] User {user_id} requested the image payload!")
+    
+#     # Redirect to a high-quality static image hosted on a completely different CDN
+#     # Google will execute your code first, then grab the asset
+#     target_image = "https://unsplash.com"
+    
+#     response = RedirectResponse(url=target_image, status_code=302)
+#     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+#     return response
