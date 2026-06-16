@@ -26,7 +26,7 @@ async def track_open(user_id: str):
     response = StreamingResponse(file_stream, media_type="image/png")
 
     # Forcing Google Proxy to fetch fresh on every single load loop
-    response.headers["Content-Length"] = str(len(TRANSPARENT_1X1_PNG))
+    response.headers["Content-Length"] = str(len(TRANSPARENT_PNG_BYTES))
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
