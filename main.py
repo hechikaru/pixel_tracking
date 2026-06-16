@@ -17,19 +17,19 @@ async def log_incoming_traffic(request: Request, call_next):
     return await call_next(request)
 
 @app.get("/track/{user_id}/pixel.png")
-async def track_open(user_id: str, response: Response):
-    # Calculate the exact size of your binary image
-    content_length = str(len(TRANSPARENT_1X1_PNG))
+async def track_open(user_id: str):
+    # Convert the raw bytes into a flawless virtual file stream
+    file_stream = io.BytesIO(TRANSPARENT_PNG_BYTES)
 
-    # Force strict image headers so Google doesn't think it's corrupted text
-    response.headers["Content-Length"] = content_length
-    response.headers["Content-Type"] = "image/png"
+    # Use StreamingResponse to guarantee correct chunking and binary boundaries
+    response = StreamingResponse(file_stream, media_type="image/png")
 
     # Forcing Google Proxy to fetch fresh on every single load loop
+    response.headers["Content-Length"] = str(len(TRANSPARENT_1X1_PNG))
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
-    return Response(content=TRANSPARENT_1X1_PNG, media_type="image/png")
+    return response
 
 # @app.get("/track/{user_id}/banner.png")
 # async def track_and_redirect(user_id: str):
